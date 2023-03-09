@@ -15,7 +15,9 @@ import javax.persistence.EntityManager;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
+// 스프링 위에서 돌아야 하기 때문에 사용하는 어노테이션
 @SpringBootTest
+// 테스트를 다 하고 롤백
 @Transactional
 public class MemberServiceTest {
 
