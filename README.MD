@@ -80,4 +80,29 @@ public class Address {
 
 ---
 
--
+- Entity 생성자
+  - JPA는 기본 스펙으로 proceted 생성 까지 가능하다
+  - 유지보수성을 위해서라도 다양하게 생성자를 만드는것을 막아 놓는다.
+  - 항상 코드를 제약하는 스타일로 작성하여 유지보수가 편하게 만든다.
+
+```java
+  @Entity
+  @Getter
+  @Setter
+  @NoArgsConstructor(access = AccessLevel.PROTECTED)
+  public class OrderItem {
+```
+
+---
+
+- SQL 위주의 개발과 JPA
+  - 일반적으로 데이터베이스의 SQL을 직접 다루는 mybatis, jdbc template 등은 데이터의 수정이 있을 경우 수정 쿼리를 실행 한 이후에 연관된 엔티티의 데이터를 모두 변경해줘야 한다.
+  - JPA를 활용할 경우 엔티티 안에 있는 데이터만 변경 할경우 JPA dirty checking이 일어나면서 변경된 내용이 감지되어 업데이트 쿼리가 자동으로 수행된다.
+
+---
+
+- 엔티티 속 비즈니스 로직
+  - 엔티티 속에 대부분의 비즈니스 로직이 있다. 서비스 계층은 단순히 엔티티에 필요한 요청을 위임하는 역할을 하고, 이처럼 엔티티가 비즈니스 로직을 가지고 객체 지향의 특성을 적극 활용하는 것을 도메인 모델 패턴 이라고 한다.
+    - http://martinfowler.com/eaaCatalog/domainModel.html
+  - 반대로 엔티티에는 비즈니스로직이 거의 없고 서비스 계층에서 대부분의 비즈니스 로직을 처리하는 것을 트랜잭션 스크립트 패턴이라고 한다.
+    - http://martinfowler.com/eaaCatalog/transactionScript.html
