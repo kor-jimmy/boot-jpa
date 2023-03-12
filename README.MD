@@ -106,3 +106,52 @@ public class Address {
     - http://martinfowler.com/eaaCatalog/domainModel.html
   - 반대로 엔티티에는 비즈니스로직이 거의 없고 서비스 계층에서 대부분의 비즈니스 로직을 처리하는 것을 트랜잭션 스크립트 패턴이라고 한다.
     - http://martinfowler.com/eaaCatalog/transactionScript.html
+
+---
+
+**변경 감지와 병합(merge)**
+
+- 준영속성 엔티티란?
+  - 영속성 컨텍스트가 관리하지 않는 엔티티
+- 준영속성 엔티티를 수정하는 2가지 방법
+  - 변경 감지 기능 사용
+  - 병합(merge) 사용
+- 변경 감지 기능 사용
+  - 영속성 컨텍스트에서 엔티티를 다시 조회한 후에 데이터를 수정하는 방법
+  - 트랜잭션 안에서 엔티티를 다시 조회, 변경할 값 선택 => 트랜잭션 커밋 시점에 변경 검지(Dirty Checking)
+  - 위 동작을 통해 데이터베이스에 UPDATE SQL 요청
+
+```java
+@Transactional
+//itemParam: 파리미터로 넘어온 준영속 상태의 엔티티
+void update(Item itemParam) {
+  //같은 엔티티를 조회한다.
+  Item findItem = em.find(Item.class, itemParam.getId());
+  //데이터를 수정한다.
+  findItem.setPrice(itemParam.getPrice());
+}
+```
+
+- 병합 사용
+  - 병합은 준영속 상태의 엔티티를 영속상태로 변경할 때 사용하는 기능이다.
+
+```java
+@Transactional
+//itemParam: 파리미터로 넘어온 준영속 상태의 엔티티
+void update(Item itemParam) {
+  Item mergeItem = em.merge(item);
+}
+```
+
+- 병합 동작 방식
+
+  - 준영속 엔티티의 식별자 값으로 영속 엔티티를 조회한다.
+  - 영속 엔티티의 값을 준영속 엔티티의 값으로 모두 교체한다.(병합한다.)
+  - 트랜잭션 커밋 시점에 변경 감지 기능이 동작해서 데이터베이스에 UPDATE SQL이 실행
+  - **주의** : 변경 감지 기능을 사용하면 원하는 속성만 선택해서 변경할 수 있지만, 병합을 사용하면 모든 속성이 변경된다. 병합시 값이 없으면 null 로 업데이트 할 위험도 있다. (병합은 모든 필드를 교체한다.)
+
+- **엔티티를 변경할 때는 항상 변경 감지 사용**
+  - 컨트롤러에서 엔티티 생성 금지
+  - 트랜잭션이 있는 서비스 계층에 식별자와 변경할 데이터를 명확하게 전달(파라미터 or dto)
+  - 트랜잭션이 있는 서비스 계층에서 영속 상태의 엔티티를 조회하고, 엔티티의 데이터를 직접 변경
+  - 트랜잭션 커밋 시점에 변경 감지가 실행
