@@ -70,5 +70,29 @@ public class OrderRepository {
         ).getResultList();
     }
 
+    public List<Order> findAllWithMemberDelivery(int offset, int limit) {
+        return em.createQuery(
+                        "select o from Order o " +
+                                " join fetch o.member m" +
+                                " join fetch o.delivery d", Order.class
+                ).setFirstResult(offset)
+                .setMaxResults(100)
+                .getResultList();
+    }
 
+
+    public List<Order> findAllWithItem() {
+        /***
+         * distinct 키워드
+         * SQL에서 distinct를 사용해주고, 엔티티가 중복일시 제거 된다.
+         * 치명적인 단점 - 페이징이 불가능함.
+         */
+        return em.createQuery(
+                "select distinct o from Order o" +
+                        " join fetch o.member m" +
+                        " join fetch o.delivery d" +
+                        " join fetch o.orderItems oi " +
+                        " join fetch oi.item i", Order.class
+        ).getResultList();
+    }
 }
