@@ -6,8 +6,11 @@ import jpabook.jpashop.domain.OrderItem;
 import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import jpabook.jpashop.repository.order.query.OrderFlatDto;
 import jpabook.jpashop.repository.order.query.OrderQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryRepository;
+import jpabook.jpashop.service.query.OrderDto;
+import jpabook.jpashop.service.query.OrderQueryService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
@@ -48,13 +51,12 @@ public class OrderApiController {
         return collect;
     }
 
+    final private OrderQueryService orderQueryService;
+
     @GetMapping("/api/v3/orders")
-    public List<OrderDto> ordersV3() {
-        List<Order> orders = orderRepository.findAllWithItem();
-        List<OrderDto> collect = orders.stream()
-                .map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
-        return collect;
+    public List<jpabook.jpashop.service.query.OrderDto> ordersV3() {
+        List<jpabook.jpashop.service.query.OrderDto> orderDtos = orderQueryService.ordersV3();
+        return orderDtos;
     }
 
     @GetMapping("/api/v3.1/orders")
@@ -80,7 +82,10 @@ public class OrderApiController {
         return orderQueryRepository.findAllByDto_optimization();
     }
 
-
+    @GetMapping("/api/v6/orders")
+    public List<OrderFlatDto> ordersV6() {
+        return orderQueryRepository.findAllByDto_flat();
+    }
 
 
     @Getter
